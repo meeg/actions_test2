@@ -8,7 +8,6 @@ permissions:
   
 jobs:
   if_merged:
-#    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -16,27 +15,18 @@ jobs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
         GH_TOKEN: ${{ github.token }}
       run: |
-        pwd
-        ls -ltr
-        git log -n 2
-        echo "gh pr reopen $PR_NUMBER"
-        git log -n 2
+        versionpath=qick_lib/qick/VERSION
         gh pr checkout $PR_NUMBER
-        git log -n 2
-        file_version=$(cut -d '.' -f 3 qick_lib/qick/VERSION)
+        file_version=$(cut -d '.' -f 3 "$versionpath")
         echo "PR: $PR_NUMBER file: $file_version"
         if [ $file_version = $PR_NUMBER ]; then
           echo "yay"
         else
           echo "boo"
+          echo "$(cut -d '.' -f -2 $versionpath).$PR_NUMBER" > "$versionpath"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config user.name "$GITHUB_ACTOR"
+          git add "$versionpath"
+          git commit -am "update version"
+          git push
         fi
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-        git config user.name "$GITHUB_ACTOR"
-        echo The PR was merged
-        echo $PR_NUMBER
-        touch $PR_NUMBER
-        git add $PR_NUMBER
-        git commit -am "test commit"
-        echo "gh pr merge $PR_NUMBER"
-        git push
-        echo git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git"
