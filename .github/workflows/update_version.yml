@@ -2,8 +2,9 @@
 # The version has the format major.minor.PR, where PR is the number of the most recent pull request.
 # This action runs automatically when a pull request is opened, or a commit is added to an open pull request.
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
-
+#
 # It checks the version number against the PR number; if it does not match, the version number is updated in a new commit.
+# The commit will be credited to the GitHub Actions user.
 # https://github.com/orgs/community/discussions/26560#discussioncomment-3252339
 # 
 # If you don't want this action to run (e.g. if you want a different version number for a certain PR), include [skip actions] in the commit message.
@@ -28,7 +29,7 @@ jobs:
         versionpath=qick_lib/qick/VERSION
         gh pr checkout $PR_NUMBER
         file_version=$(cut -d '.' -f 3 "$versionpath")
-        echo "PR: $PR_NUMBER file: $file_version"
+        echo "PR number: $PR_NUMBER, VERSION number: $file_version"
         if [ $file_version != $PR_NUMBER ]; then
           echo "updating VERSION"
           echo "$(cut -d '.' -f -2 $versionpath).$PR_NUMBER" > "$versionpath"
